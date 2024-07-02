@@ -271,7 +271,7 @@ export default class Source implements SourceType {
         .knex(MetaTable.BASES)
         .select(`${MetaTable.BASES}.*`)
         .where(`${MetaTable.BASES}.id`, id)
-        .where(`${MetaTable.BASES}.base_id`, context.base_id)
+        .where(`${MetaTable.BASES}.base_id`, context.base_id);
 
       this.extendQb(qb, context);
 
