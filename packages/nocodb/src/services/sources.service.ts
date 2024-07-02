@@ -34,7 +34,7 @@ export class SourcesService {
 
     const baseBody = param.source;
     const base = await Base.getWithInfo(context, param.baseId);
-    const source = await Source.updateBase(context, param.sourceId, {
+    const source = await Source.update(context, param.sourceId, {
       ...baseBody,
       type: baseBody.config?.client,
       baseId: base.id,
