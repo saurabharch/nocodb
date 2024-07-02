@@ -190,6 +190,7 @@ export enum NcErrorType {
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
   BAD_JSON = 'BAD_JSON',
   INVALID_PK_VALUE = 'INVALID_PK_VALUE',
+  INTEGRATION_NOT_FOUND= 'INTEGRATION_NOT_FOUND',
 }
 
 type Roles = OrgUserRoles | ProjectRoles | WorkspaceUserRoles;
