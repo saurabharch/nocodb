@@ -18653,6 +18653,9 @@
             "description": "The base ID that this source belongs to",
             "type": "string"
           },
+          "is_private": {
+            "$ref": "#/components/schemas/Bool"
+          },
           "type": {
             "$ref": "#/components/schemas/Integrations"
           },
