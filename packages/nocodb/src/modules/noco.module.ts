@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 
 /* Modules */
+import { MulterModule } from '@nestjs/platform-express';
+import multer from 'multer';
 import { EventEmitterModule } from '~/modules/event-emitter/event-emitter.module';
 import { JobsModule } from '~/modules/jobs/jobs.module';
 
@@ -116,9 +118,19 @@ import { PublicDatasExportService } from '~/services/public-datas-export.service
 import { PublicDatasService } from '~/services/public-datas.service';
 import { CalendarDatasController } from '~/controllers/calendars-datas.controller';
 import { CalendarDatasService } from '~/services/calendar-datas.service';
+import { NC_ATTACHMENT_FIELD_SIZE } from '~/constants';
 
 export const nocoModuleMetadata = {
-  imports: [EventEmitterModule, JobsModule],
+  imports: [
+    EventEmitterModule,
+    JobsModule,
+    MulterModule.register({
+      storage: multer.diskStorage({}),
+      limits: {
+        fieldSize: NC_ATTACHMENT_FIELD_SIZE,
+      },
+    }),
+  ],
   controllers: [
     ...(process.env.NC_WORKER_CONTAINER !== 'true'
       ? [
