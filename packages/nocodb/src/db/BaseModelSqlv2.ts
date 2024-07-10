@@ -6981,28 +6981,28 @@ class BaseModelSqlv2 {
 
                     lookedUpAttachment.thumbnails = {};
 
+                    let thumbnailPath = `${lookedUpAttachment.path.replace(
+                      /^download\//,
+                      '',
+                    )}`;
+
+                    if (thumbnailPath.startsWith('noco/'))
+                      thumbnailPath = thumbnailPath.replace('noco/', '');
+
+                    thumbnailPath = `thumbnails/${thumbnailPath}`;
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `thumbnails/${lookedUpAttachment.path.replace(
-                          /^download\//,
-                          '',
-                        )}/tiny.jpg`,
+                        path: `${thumbnailPath}/tiny.jpg`,
                       }).then((r) => (lookedUpAttachment.thumbnails.tiny = r)),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `thumbnails/${lookedUpAttachment.path.replace(
-                          /^download\//,
-                          '',
-                        )}/small.jpg`,
+                        path: `${thumbnailPath}/small.jpg`,
                       }).then((r) => (lookedUpAttachment.thumbnails.small = r)),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `thumbnails/${lookedUpAttachment.path.replace(
-                          /^download\//,
-                          '',
-                        )}/card_cover.jpg`,
+                        path: `${thumbnailPath}/card_cover.jpg`,
                       }).then(
                         (r) => (lookedUpAttachment.thumbnails.card_cover = r),
                       ),
@@ -7054,29 +7054,30 @@ class BaseModelSqlv2 {
                     }).then((r) => (attachment.signedPath = r)),
                   );
 
+                  let thumbnailPath = attachment.path.replace(
+                    /^download\//,
+                    '',
+                  );
+
+                  if (thumbnailPath.startsWith('noco/'))
+                    thumbnailPath = thumbnailPath.replace('noco/', '');
+
+                  thumbnailPath = `thumbnails/${thumbnailPath}`;
+
                   attachment.thumbnails = {};
                   promises.push(
                     PresignedUrl.getSignedUrl({
-                      path: `thumbnails/${attachment.path.replace(
-                        /^download\//,
-                        '',
-                      )}/tiny.jpg`,
+                      path: `${thumbnailPath}/tiny.jpg`,
                     }).then((r) => (attachment.thumbnails.tiny = r)),
                   );
                   promises.push(
                     PresignedUrl.getSignedUrl({
-                      path: `thumbnails/${attachment.path.replace(
-                        /^download\//,
-                        '',
-                      )}/small.jpg`,
+                      path: `${thumbnailPath}/small.jpg`,
                     }).then((r) => (attachment.thumbnails.small = r)),
                   );
                   promises.push(
                     PresignedUrl.getSignedUrl({
-                      path: `thumbnails/${attachment.path.replace(
-                        /^download\//,
-                        '',
-                      )}/card_cover.jpg`,
+                      path: `${thumbnailPath}/card_cover.jpg`,
                     }).then((r) => (attachment.thumbnails.card_cover = r)),
                   );
                 } else if (attachment?.url) {

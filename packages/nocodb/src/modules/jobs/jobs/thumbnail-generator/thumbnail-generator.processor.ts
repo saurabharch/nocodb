@@ -75,8 +75,13 @@ export class ThumbnailGeneratorProcessor {
         path: path.join('nc', 'uploads', fpath),
       });
 
+      relativePath = fpath;
+
       file = tempPath.path;
     }
+
+    if (relativePath.startsWith('noco/'))
+      relativePath = relativePath.replace('noco/', '');
 
     const thumbnailPaths = {
       card_cover: path.join(
