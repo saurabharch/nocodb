@@ -36,50 +36,7 @@ export class ThumbnailGeneratorProcessor {
   private async generateThumbnail(
     attachment: AttachmentResType,
   ): Promise<{ [key: string]: string }> {
-    let url;
-    let signedUrl;
-    let file;
-
-    let relativePath;
-
-    if (attachment?.path) {
-      relativePath = attachment.path.replace(/^download\//, '');
-      url = await PresignedUrl.getSignedUrl({
-        path: attachment.path.replace(/^download\//, ''),
-      });
-    } else if (attachment?.url) {
-      relativePath = decodeURI(attachment.url.split('.amazonaws.com/')[1]);
-      if (attachment.url.includes('.amazonaws.com/')) {
-        signedUrl = await PresignedUrl.getSignedUrl({
-          s3: true,
-          path: relativePath,
-        });
-        relativePath = relativePath.replace('nc/uploads/', '');
-      } else {
-        relativePath = attachment.url;
-      }
-
-      file = (await axios({ url: signedUrl, responseType: 'arraybuffer' }))
-        .data as Buffer;
-    }
-
-    if (url && !signedUrl) {
-      const fullPath = await PresignedUrl.getPath(`${url}`);
-      const queryHelper = fullPath.split('?');
-
-      const fpath = queryHelper[0];
-
-      const tempPath = await this.attachmentsService.getFile({
-        path: path.join('nc', 'uploads', fpath),
-      });
-
-      relativePath = fpath;
-
-      file = tempPath.path;
-    }
-
-    if (relativePath.startsWith('noco/'))
-      relativePath = relativePath.replace('noco/', '');
+    const { file, relativePath } = await this.getFileData(attachment);
 
     const thumbnailPaths = {
       card_cover: path.join(
@@ -141,5 +98,38 @@ export class ThumbnailGeneratorProcessor {
         error,
       );
     }
+  }
+
+  private async getFileData(
+    attachment: AttachmentResType,
+  ): Promise<{ file: Buffer; relativePath: string }> {
+    let url, signedUrl, file;
+    let relativePath;
+
+    if (attachment.path) {
+      relativePath = attachment.path.replace(/^download\//, '');
+      url = await PresignedUrl.getSignedUrl({ path: relativePath });
+    } else if (attachment.url) {
+      relativePath = decodeURI(attachment.url.split('.amazonaws.com/')[1]);
+      signedUrl = attachment.url.includes('.amazonaws.com/')
+        ? await PresignedUrl.getSignedUrl({ s3: true, path: relativePath })
+        : attachment.url;
+
+      file = (await axios({ url: signedUrl, responseType: 'arraybuffer' }))
+        .data as Buffer;
+    }
+
+    if (url && !signedUrl) {
+      const fullPath = await PresignedUrl.getPath(`${url}`);
+      const [fpath] = fullPath.split('?');
+      const tempPath = await this.attachmentsService.getFile({
+        path: path.join('nc', 'uploads', fpath),
+      });
+      relativePath = fpath;
+      file = tempPath.path;
+    }
+
+    relativePath = relativePath.replace(/^noco\//, '');
+    return { file, relativePath };
   }
 }
