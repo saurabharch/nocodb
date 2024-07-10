@@ -6970,12 +6970,14 @@ class BaseModelSqlv2 {
               if (Array.isArray(attachment)) {
                 for (const lookedUpAttachment of attachment) {
                   if (lookedUpAttachment?.path) {
+                    let relativePath = lookedUpAttachment.path.replace(
+                      /^download\//,
+                      '',
+                    );
+
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: lookedUpAttachment.path.replace(
-                          /^download\//,
-                          '',
-                        ),
+                        path: relativePath,
                       }).then((r) => (lookedUpAttachment.signedPath = r)),
                     );
 
@@ -6985,32 +6987,25 @@ class BaseModelSqlv2 {
                       card_cover: {},
                     };
 
-                    let thumbnailPath = `${lookedUpAttachment.path.replace(
-                      /^download\//,
-                      '',
-                    )}`;
+                    relativePath = `thumbnails/${relativePath}`;
 
-                    if (thumbnailPath.startsWith('noco/'))
-                      thumbnailPath = thumbnailPath.replace('noco/', '');
-
-                    thumbnailPath = `thumbnails/${thumbnailPath}`;
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `${thumbnailPath}/tiny.jpg`,
+                        path: `${relativePath}/tiny.jpg`,
                       }).then(
                         (r) => (lookedUpAttachment.thumbnails.tiny.path = r),
                       ),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `${thumbnailPath}/small.jpg`,
+                        path: `${relativePath}/small.jpg`,
                       }).then(
                         (r) => (lookedUpAttachment.thumbnails.small.path = r),
                       ),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `${thumbnailPath}/card_cover.jpg`,
+                        path: `${relativePath}/card_cover.jpg`,
                       }).then(
                         (r) =>
                           (lookedUpAttachment.thumbnails.card_cover.path = r),
@@ -7029,13 +7024,8 @@ class BaseModelSqlv2 {
                       );
 
                       relativePath = relativePath.replace(
-                        'nc/uploads/noco',
-                        'nc/uploads/thumbnails',
-                      );
-
-                      relativePath = relativePath.replace(
                         'nc/uploads',
-                        'nc/uploads/thumbnails',
+                        'nc/thumbnails',
                       );
 
                       lookedUpAttachment.thumbnails = {
@@ -7076,21 +7066,15 @@ class BaseModelSqlv2 {
                 }
               } else {
                 if (attachment?.path) {
+                  let relativePath = attachment.path.replace(/^download\//, '');
+
                   promises.push(
                     PresignedUrl.getSignedUrl({
-                      path: attachment.path.replace(/^download\//, ''),
+                      path: relativePath,
                     }).then((r) => (attachment.signedPath = r)),
                   );
 
-                  let thumbnailPath = attachment.path.replace(
-                    /^download\//,
-                    '',
-                  );
-
-                  if (thumbnailPath.startsWith('noco/'))
-                    thumbnailPath = thumbnailPath.replace('noco/', '');
-
-                  thumbnailPath = `thumbnails/${thumbnailPath}`;
+                  relativePath = `thumbnails/${relativePath}`;
 
                   attachment.thumbnails = {
                     tiny: {},
@@ -7099,17 +7083,17 @@ class BaseModelSqlv2 {
                   };
                   promises.push(
                     PresignedUrl.getSignedUrl({
-                      path: `${thumbnailPath}/tiny.jpg`,
+                      path: `${relativePath}/tiny.jpg`,
                     }).then((r) => (attachment.thumbnails.tiny.path = r)),
                   );
                   promises.push(
                     PresignedUrl.getSignedUrl({
-                      path: `${thumbnailPath}/small.jpg`,
+                      path: `${relativePath}/small.jpg`,
                     }).then((r) => (attachment.thumbnails.small.path = r)),
                   );
                   promises.push(
                     PresignedUrl.getSignedUrl({
-                      path: `${thumbnailPath}/card_cover.jpg`,
+                      path: `${relativePath}/card_cover.jpg`,
                     }).then((r) => (attachment.thumbnails.card_cover.path = r)),
                   );
                 } else if (attachment?.url) {
@@ -7126,13 +7110,8 @@ class BaseModelSqlv2 {
                     );
 
                     relativePath = relativePath.replace(
-                      'nc/uploads/noco',
-                      'nc/uploads/thumbnails',
-                    );
-
-                    relativePath = relativePath.replace(
                       'nc/uploads',
-                      'nc/uploads/thumbnails',
+                      'nc/thumbnails',
                     );
 
                     attachment.thumbnails = {

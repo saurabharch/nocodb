@@ -39,21 +39,9 @@ export class ThumbnailGeneratorProcessor {
     const { file, relativePath } = await this.getFileData(attachment);
 
     const thumbnailPaths = {
-      card_cover: path.join(
-        'nc',
-        'uploads',
-        'thumbnails',
-        relativePath,
-        'card_cover.jpg',
-      ),
-      small: path.join(
-        'nc',
-        'uploads',
-        'thumbnails',
-        relativePath,
-        'small.jpg',
-      ),
-      tiny: path.join('nc', 'uploads', 'thumbnails', relativePath, 'tiny.jpg'),
+      card_cover: path.join('nc', 'thumbnails', relativePath, 'card_cover.jpg'),
+      small: path.join('nc', 'thumbnails', relativePath, 'small.jpg'),
+      tiny: path.join('nc', 'thumbnails', relativePath, 'tiny.jpg'),
     };
 
     try {
@@ -128,8 +116,6 @@ export class ThumbnailGeneratorProcessor {
       relativePath = fpath;
       file = tempPath.path;
     }
-
-    relativePath = relativePath.replace(/^noco\//, '');
 
     if (relativePath.startsWith('nc/uploads/')) {
       relativePath = relativePath.replace('nc/uploads/', '');

@@ -142,8 +142,10 @@ export class AttachmentsController {
         queryFilename = query.get('filename');
       }
 
+      const filePath = param.split('/')[2] === 'thumbnails' ? '' : 'uploads';
+
       const file = await this.attachmentsService.getFile({
-        path: path.join('nc', 'uploads', fpath),
+        path: path.join('nc', filePath, fpath),
       });
 
       if (this.attachmentsService.previewAvailable(file.type)) {
