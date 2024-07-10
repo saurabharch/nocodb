@@ -31,9 +31,17 @@ export class ThumbnailGeneratorProcessor {
             attachment.mimetype.startsWith(type),
           ),
         )
-        .map((attachment) => this.generateThumbnail(attachment));
+        .map(async (attachment) => {
+          const thumbnail = await this.generateThumbnail(attachment);
+          return {
+            path: attachment.path ?? attachment.url,
+            card_cover: thumbnail.card_cover,
+            small: thumbnail.small,
+            tiny: thumbnail.tiny,
+          };
+        });
 
-      await Promise.all(thumbnailPromises);
+      return await Promise.all(thumbnailPromises);
     } catch (error) {
       console.log(error);
     }
