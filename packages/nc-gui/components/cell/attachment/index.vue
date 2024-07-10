@@ -300,7 +300,7 @@ const handleFileDelete = (i: number) => {
                     'h-16.8': rowHeight === 4,
                     'h-20.8': rowHeight === 6 || isForm || isExpandedForm,
                   }"
-                  :srcs="getPossibleAttachmentSrc(item)"
+                  :srcs="getPossibleAttachmentSrc(item, isExpandedForm ? 'card_cover' : 'tiny')"
                 />
               </div>
             </div>
