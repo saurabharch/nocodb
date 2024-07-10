@@ -131,9 +131,26 @@ export default class Minio implements IStorageAdapterV2 {
     });
   }
 
-  // TODO - implement
-  fileCreateByStream(_key: string, _stream: Readable): Promise<void> {
-    return Promise.resolve(undefined);
+  async fileCreateByStream(key: string, stream: Readable): Promise<any> {
+    return new Promise((resolve, reject) => {
+      // uploadParams.Body = fileStream;
+      // uploadParams.Key = key;
+      const metaData = {
+        // 'X-Amz-Meta-Testing': 1234,
+        // 'run': 5678
+      };
+      // call S3 to retrieve upload file to specified bucket
+      this.minioClient
+        .putObject(this.input?.bucket, key, stream, metaData)
+        .then(() => {
+          resolve(
+            `http${this.input.useSSL ? 's' : ''}://${this.input.endPoint}:${
+              this.input.port
+            }/${this.input.bucket}/${key}`,
+          );
+        })
+        .catch(reject);
+    });
   }
 
   // TODO - implement

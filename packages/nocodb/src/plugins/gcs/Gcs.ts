@@ -127,9 +127,24 @@ export default class Gcs implements IStorageAdapterV2 {
     });
   }
 
-  // TODO - implement
-  fileCreateByStream(_key: string, _stream: Readable): Promise<void> {
-    return Promise.resolve(undefined);
+  async fileCreateByStream(key: string, stream: Readable): Promise<void> {
+    const uploadResponse = await this.storageClient
+      .bucket(this.bucketName)
+      .file(key)
+      .save(stream, {
+        // Support for HTTP requests made with `Accept-Encoding: gzip`
+        gzip: true,
+        // By setting the option `destination`, you can change the name of the
+        // object you are uploading to a bucket.
+        metadata: {
+          // Enable long-lived HTTP caching headers
+          // Use only if the contents of the file will never change
+          // (If the contents will change, use cacheControl: 'no-cache')
+          cacheControl: 'public, max-age=31536000',
+        },
+      });
+
+    return uploadResponse[0].publicUrl();
   }
 
   // TODO - implement

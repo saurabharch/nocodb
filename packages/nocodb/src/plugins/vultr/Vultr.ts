@@ -78,9 +78,25 @@ export default class Vultr implements IStorageAdapterV2 {
     });
   }
 
-  // TODO - implement
-  fileCreateByStream(_key: string, _stream: Readable): Promise<void> {
-    return Promise.resolve(undefined);
+  async fileCreateByStream(key: string, stream: Readable): Promise<void> {
+    const uploadParams: any = {
+      ACL: 'public-read',
+      Body: stream,
+      Key: key,
+      // ContentType: file.mimetype,
+    };
+    return new Promise((resolve, reject) => {
+      // call S3 to retrieve upload file to specified bucket
+      this.s3Client.upload(uploadParams, (err, data) => {
+        if (err) {
+          console.log('Error', err);
+          reject(err);
+        }
+        if (data) {
+          resolve(data.Location);
+        }
+      });
+    });
   }
 
   // TODO - implement
