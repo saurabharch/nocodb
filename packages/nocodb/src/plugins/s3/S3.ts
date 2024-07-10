@@ -75,9 +75,12 @@ export default class S3 implements IStorageAdapterV2 {
     }
   }
 
-  // TODO - implement
-  fileCreateByStream(_key: string, _stream: Readable): Promise<void> {
-    return Promise.resolve(undefined);
+  public async fileCreateByStream(key: string, stream: Readable): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.upload({ Key: key, Body: stream })
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
+    });
   }
 
   // TODO - implement

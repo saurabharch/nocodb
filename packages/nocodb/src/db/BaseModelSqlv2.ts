@@ -6979,7 +6979,11 @@ class BaseModelSqlv2 {
                       }).then((r) => (lookedUpAttachment.signedPath = r)),
                     );
 
-                    lookedUpAttachment.thumbnails = {};
+                    lookedUpAttachment.thumbnails = {
+                      tiny: {},
+                      small: {},
+                      card_cover: {},
+                    };
 
                     let thumbnailPath = `${lookedUpAttachment.path.replace(
                       /^download\//,
@@ -6993,23 +6997,28 @@ class BaseModelSqlv2 {
                     promises.push(
                       PresignedUrl.getSignedUrl({
                         path: `${thumbnailPath}/tiny.jpg`,
-                      }).then((r) => (lookedUpAttachment.thumbnails.tiny = r)),
+                      }).then(
+                        (r) => (lookedUpAttachment.thumbnails.tiny.path = r),
+                      ),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
                         path: `${thumbnailPath}/small.jpg`,
-                      }).then((r) => (lookedUpAttachment.thumbnails.small = r)),
+                      }).then(
+                        (r) => (lookedUpAttachment.thumbnails.small.path = r),
+                      ),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
                         path: `${thumbnailPath}/card_cover.jpg`,
                       }).then(
-                        (r) => (lookedUpAttachment.thumbnails.card_cover = r),
+                        (r) =>
+                          (lookedUpAttachment.thumbnails.card_cover.path = r),
                       ),
                     );
                   } else if (lookedUpAttachment?.url) {
                     if (lookedUpAttachment.url.includes('.amazonaws.com/')) {
-                      const relativePath = decodeURI(
+                      let relativePath = decodeURI(
                         lookedUpAttachment.url.split('.amazonaws.com/')[1],
                       );
                       promises.push(
@@ -7018,29 +7027,43 @@ class BaseModelSqlv2 {
                           s3: true,
                         }).then((r) => (lookedUpAttachment.signedUrl = r)),
                       );
-                      lookedUpAttachment.thumbnails = {};
+
+                      relativePath = relativePath.replace(
+                        'nc/uploads/noco',
+                        'nc/uploads/thumbnails',
+                      );
+
+                      lookedUpAttachment.thumbnails = {
+                        tiny: {},
+                        small: {},
+                        card_cover: {},
+                      };
                       promises.push(
                         PresignedUrl.getSignedUrl({
-                          path: `thumbnails/${relativePath}/tiny.jpg`,
+                          path: `${relativePath}/tiny.jpg`,
                           s3: true,
                         }).then(
-                          (r) => (lookedUpAttachment.thumbnails.tiny = r),
+                          (r) =>
+                            (lookedUpAttachment.thumbnails.tiny.signedUrl = r),
                         ),
                       );
                       promises.push(
                         PresignedUrl.getSignedUrl({
-                          path: `thumbnails/${relativePath}/small.jpg`,
+                          path: `${relativePath}/small.jpg`,
                           s3: true,
                         }).then(
-                          (r) => (lookedUpAttachment.thumbnails.small = r),
+                          (r) =>
+                            (lookedUpAttachment.thumbnails.small.signedUrl = r),
                         ),
                       );
                       promises.push(
                         PresignedUrl.getSignedUrl({
-                          path: `thumbnails/${relativePath}/card_cover.jpg`,
+                          path: `${relativePath}/card_cover.jpg`,
                           s3: true,
                         }).then(
-                          (r) => (lookedUpAttachment.thumbnails.card_cover = r),
+                          (r) =>
+                            (lookedUpAttachment.thumbnails.card_cover.signedUrl =
+                              r),
                         ),
                       );
                     }
@@ -7064,27 +7087,32 @@ class BaseModelSqlv2 {
 
                   thumbnailPath = `thumbnails/${thumbnailPath}`;
 
-                  attachment.thumbnails = {};
+                  attachment.thumbnails = {
+                    tiny: {},
+                    small: {},
+                    card_cover: {},
+                  };
                   promises.push(
                     PresignedUrl.getSignedUrl({
                       path: `${thumbnailPath}/tiny.jpg`,
-                    }).then((r) => (attachment.thumbnails.tiny = r)),
+                    }).then((r) => (attachment.thumbnails.tiny.path = r)),
                   );
                   promises.push(
                     PresignedUrl.getSignedUrl({
                       path: `${thumbnailPath}/small.jpg`,
-                    }).then((r) => (attachment.thumbnails.small = r)),
+                    }).then((r) => (attachment.thumbnails.small.path = r)),
                   );
                   promises.push(
                     PresignedUrl.getSignedUrl({
                       path: `${thumbnailPath}/card_cover.jpg`,
-                    }).then((r) => (attachment.thumbnails.card_cover = r)),
+                    }).then((r) => (attachment.thumbnails.card_cover.path = r)),
                   );
                 } else if (attachment?.url) {
                   if (attachment.url.includes('.amazonaws.com/')) {
-                    const relativePath = decodeURI(
+                    let relativePath = decodeURI(
                       attachment.url.split('.amazonaws.com/')[1],
                     );
+
                     promises.push(
                       PresignedUrl.getSignedUrl({
                         path: relativePath,
@@ -7092,24 +7120,39 @@ class BaseModelSqlv2 {
                       }).then((r) => (attachment.signedUrl = r)),
                     );
 
-                    attachment.thumbnails = {};
+                    relativePath = relativePath.replace(
+                      'nc/uploads/noco',
+                      'nc/uploads/thumbnails',
+                    );
+
+                    attachment.thumbnails = {
+                      tiny: {},
+                      small: {},
+                      card_cover: {},
+                    };
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `thumbnails/${relativePath}/tiny.jpg`,
+                        path: `${relativePath}/tiny.jpg`,
                         s3: true,
-                      }).then((r) => (attachment.thumbnails.tiny = r)),
+                      }).then(
+                        (r) => (attachment.thumbnails.tiny.signedUrl = r),
+                      ),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `thumbnails/${relativePath}/small.jpg`,
+                        path: `${relativePath}/small.jpg`,
                         s3: true,
-                      }).then((r) => (attachment.thumbnails.small = r)),
+                      }).then(
+                        (r) => (attachment.thumbnails.small.signedUrl = r),
+                      ),
                     );
                     promises.push(
                       PresignedUrl.getSignedUrl({
-                        path: `thumbnails/${relativePath}/card_cover.jpg`,
+                        path: `${relativePath}/card_cover.jpg`,
                         s3: true,
-                      }).then((r) => (attachment.thumbnails.card_cover = r)),
+                      }).then(
+                        (r) => (attachment.thumbnails.card_cover.signedUrl = r),
+                      ),
                     );
                   }
                 }

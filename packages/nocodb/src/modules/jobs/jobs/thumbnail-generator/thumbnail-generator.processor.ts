@@ -4,6 +4,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 import { Logger } from '@nestjs/common';
 import sharp from 'sharp';
+import axios from 'axios';
 import type { AttachmentResType } from 'nocodb-sdk';
 import type { ThumbnailGeneratorJobData } from '~/interface/Jobs';
 import { JOBS_QUEUE, JobTypes } from '~/interface/Jobs';
@@ -47,22 +48,19 @@ export class ThumbnailGeneratorProcessor {
         path: attachment.path.replace(/^download\//, ''),
       });
     } else if (attachment?.url) {
+      relativePath = decodeURI(attachment.url.split('.amazonaws.com/')[1]);
       if (attachment.url.includes('.amazonaws.com/')) {
-        relativePath = decodeURI(attachment.url.split('.amazonaws.com/')[1]);
-
         signedUrl = await PresignedUrl.getSignedUrl({
           s3: true,
           path: relativePath,
         });
+        relativePath = relativePath.replace('nc/uploads/', '');
       } else {
         relativePath = attachment.url;
       }
 
-      file = (
-        await fetch(signedUrl, {
-          method: 'GET',
-        })
-      ).arrayBuffer();
+      file = (await axios({ url: signedUrl, responseType: 'arraybuffer' }))
+        .data as Buffer;
     }
 
     if (url && !signedUrl) {
@@ -137,11 +135,11 @@ export class ThumbnailGeneratorProcessor {
 
       return thumbnailPaths;
     } catch (error) {
+      console.log(error);
       this.logger.error(
         `Failed to generate thumbnails for ${attachment.path}`,
         error,
       );
-      throw error;
     }
   }
 }
