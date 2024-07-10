@@ -130,6 +130,11 @@ export class ThumbnailGeneratorProcessor {
     }
 
     relativePath = relativePath.replace(/^noco\//, '');
+
+    if (relativePath.startsWith('nc/uploads/')) {
+      relativePath = relativePath.replace('nc/uploads/', '');
+    }
+
     return { file, relativePath };
   }
 }

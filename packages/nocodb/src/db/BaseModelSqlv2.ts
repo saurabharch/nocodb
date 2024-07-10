@@ -7033,6 +7033,11 @@ class BaseModelSqlv2 {
                         'nc/uploads/thumbnails',
                       );
 
+                      relativePath = relativePath.replace(
+                        'nc/uploads',
+                        'nc/uploads/thumbnails',
+                      );
+
                       lookedUpAttachment.thumbnails = {
                         tiny: {},
                         small: {},
@@ -7122,6 +7127,11 @@ class BaseModelSqlv2 {
 
                     relativePath = relativePath.replace(
                       'nc/uploads/noco',
+                      'nc/uploads/thumbnails',
+                    );
+
+                    relativePath = relativePath.replace(
+                      'nc/uploads',
                       'nc/uploads/thumbnails',
                     );
 
