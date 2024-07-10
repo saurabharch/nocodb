@@ -1,7 +1,7 @@
 import path from 'path';
 import Url from 'url';
 import { AppEvents } from 'nocodb-sdk';
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import slash from 'slash';
 import PQueue from 'p-queue';
@@ -15,12 +15,19 @@ import mimetypes, { mimeIcons } from '~/utils/mimeTypes';
 import { PresignedUrl } from '~/models';
 import { utf8ify } from '~/helpers/stringHelpers';
 import { NcError } from '~/helpers/catchError';
+import { IJobsService } from '~/modules/jobs/jobs-service.interface';
+import { JobTypes } from '~/interface/Jobs';
+import { RootScopes } from '~/utils/globals';
 
 @Injectable()
 export class AttachmentsService {
   protected logger = new Logger(AttachmentsService.name);
 
-  constructor(private readonly appHooksService: AppHooksService) {}
+  constructor(
+    private readonly appHooksService: AppHooksService,
+    @Inject(forwardRef(() => 'JobsService'))
+    private readonly jobsService: IJobsService,
+  ) {}
 
   async upload(param: { path?: string; files: FileType[]; req: NcRequest }) {
     // TODO: add getAjvValidatorMw
@@ -113,6 +120,15 @@ export class AttachmentsService {
       throw errors[0];
     }
 
+    await this.jobsService.add(JobTypes.ThumbnailGenerator, {
+      context: {
+        base_id: RootScopes.ROOT,
+        workspace_id: RootScopes.ROOT,
+      },
+      ncSiteUrl: param.req.ncSiteUrl,
+      attachments,
+    });
+
     this.appHooksService.emit(AppEvents.ATTACHMENT_UPLOAD, {
       type: 'file',
       req: param.req,
@@ -193,6 +209,15 @@ export class AttachmentsService {
       errors.forEach((error) => this.logger.error(error));
       throw errors[0];
     }
+
+    await this.jobsService.add(JobTypes.ThumbnailGenerator, {
+      context: {
+        base_id: RootScopes.ROOT,
+        workspace_id: RootScopes.ROOT,
+      },
+      ncSiteUrl: param.req.ncSiteUrl,
+      attachments,
+    });
 
     this.appHooksService.emit(AppEvents.ATTACHMENT_UPLOAD, {
       type: 'url',
