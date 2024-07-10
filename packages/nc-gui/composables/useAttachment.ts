@@ -7,7 +7,6 @@ const useAttachment = () => {
     if (thumbnail && item?.thumbnails && item.thumbnails[thumbnail]) {
       res.push(`${appInfo.value.ncSiteUrl}/${encodeURI(item.thumbnails[thumbnail])}`)
     }
-
     if (item?.data) res.push(item.data)
     if (item?.file) res.push(window.URL.createObjectURL(item.file))
     if (item?.signedPath) res.push(`${appInfo.value.ncSiteUrl}/${encodeURI(item.signedPath)}`)

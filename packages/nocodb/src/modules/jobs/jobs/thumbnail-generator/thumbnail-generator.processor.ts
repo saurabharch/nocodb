@@ -101,26 +101,23 @@ export class ThumbnailGeneratorProcessor {
 
       await Promise.all(
         Object.entries(thumbnailPaths).map(async ([size, thumbnailPath]) => {
-          let width, height;
+          let height;
           switch (size) {
             case 'card_cover':
-              width = 663;
               height = 512;
               break;
             case 'small':
-              width = 48;
-              height = 48;
+              height = 128;
               break;
             case 'tiny':
-              width = 28;
-              height = 36;
+              height = 64;
               break;
             default:
               throw new Error(`Unknown thumbnail size: ${size}`);
           }
 
           const resizedImage = await sharp(file)
-            .resize(width, height, {
+            .resize(undefined, height, {
               fit: sharp.fit.cover,
               kernel: 'lanczos3',
             })
