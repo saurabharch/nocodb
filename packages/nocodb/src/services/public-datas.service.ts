@@ -1,5 +1,5 @@
 import path from 'path';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import { populateUniqueFileName, UITypes, ViewTypes } from 'nocodb-sdk';
 import slash from 'slash';
@@ -18,6 +18,9 @@ import { mimeIcons } from '~/utils/mimeTypes';
 import { utf8ify } from '~/helpers/stringHelpers';
 import { replaceDynamicFieldWithValue } from '~/db/BaseModelSqlv2';
 import { Filter } from '~/models';
+import { IJobsService } from '~/modules/jobs/jobs-service.interface';
+import { JobTypes } from '~/interface/Jobs';
+import { RootScopes } from '~/utils/globals';
 
 // todo: move to utils
 export function sanitizeUrlPath(paths) {
@@ -26,6 +29,11 @@ export function sanitizeUrlPath(paths) {
 
 @Injectable()
 export class PublicDatasService {
+  constructor(
+    @Inject(forwardRef(() => 'JobsService'))
+    protected readonly jobsService: IJobsService,
+  ) {}
+
   async dataList(
     context: NcContext,
     param: {
@@ -492,6 +500,14 @@ export class PublicDatasService {
 
     for (const [column, data] of Object.entries(attachments)) {
       insertObject[column] = JSON.stringify(data);
+
+      await this.jobsService.add(JobTypes.ThumbnailGenerator, {
+        attachments: data,
+        context: {
+          base_id: RootScopes.ROOT,
+          workspace_id: RootScopes.ROOT,
+        },
+      });
     }
 
     return await baseModel.nestedInsert(insertObject, null);
