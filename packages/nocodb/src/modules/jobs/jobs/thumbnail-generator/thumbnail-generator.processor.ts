@@ -12,6 +12,8 @@ import NcPluginMgrv2 from '~/helpers/NcPluginMgrv2';
 import { PresignedUrl } from '~/models';
 import { AttachmentsService } from '~/modules/jobs/jobs/thumbnail-generator/attachments.service';
 
+const attachmentPreviews = ['image/'];
+
 @Processor(JOBS_QUEUE)
 export class ThumbnailGeneratorProcessor {
   constructor(private readonly attachmentsService: AttachmentsService) {}
@@ -23,11 +25,15 @@ export class ThumbnailGeneratorProcessor {
     try {
       const { attachments } = job.data;
 
-      for (const attachment of attachments) {
-        if (attachment.mimetype.startsWith('image/')) {
-          await this.generateThumbnail(attachment);
-        }
-      }
+      const thumbnailPromises = attachments
+        .filter((attachment) =>
+          attachmentPreviews.some((type) =>
+            attachment.mimetype.startsWith(type),
+          ),
+        )
+        .map((attachment) => this.generateThumbnail(attachment));
+
+      await Promise.all(thumbnailPromises);
     } catch (error) {
       console.log(error);
     }
@@ -64,7 +70,9 @@ export class ThumbnailGeneratorProcessor {
               throw new Error(`Unknown thumbnail size: ${size}`);
           }
 
-          const resizedImage = await sharp(file)
+          const resizedImage = await sharp(file, {
+            limitInputPixels: false,
+          })
             .resize(undefined, height, {
               fit: sharp.fit.cover,
               kernel: 'lanczos3',

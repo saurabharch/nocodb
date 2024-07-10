@@ -146,7 +146,7 @@ const handleFileDelete = (i: number) => {
             >
               <LazyCellAttachmentImage
                 v-if="isImage(item.title, item.mimetype)"
-                :srcs="getPossibleAttachmentSrc(item)"
+                :srcs="getPossibleAttachmentSrc(item, 'card_cover')"
                 class="max-h-full h-64 m-auto justify-center"
                 @click.stop="onClick(item)"
               />
